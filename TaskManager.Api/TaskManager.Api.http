@@ -1,0 +1,48 @@
+@TaskManager.Api_HostAddress = http://localhost:5285
+
+POST http://localhost:5285/api/tasks
+Content-Type: application/json
+
+{
+  "titolo": "Fare la spesa",
+  "descrizione": "Comprare pane e uova",
+  "stato": 0,
+  "data": "2026-09-20",
+  "tag": 1
+}
+
+###
+
+POST http://localhost:5285/api/tasks
+Content-Type: application/json
+
+{
+  "descrizione": "Comprare pane e uova",
+  "stato": 0,
+  "data": "2026-09-20",
+  "tag": 1
+}
+
+###
+
+PUT http://localhost:5285/api/tasks/1
+Content-Type: application/json
+
+{
+  "titolo": "Compra latte AGGIORNATO DI NUOVO",
+  "descrizione": "Intero, marca X",
+  "stato": 1,
+  "data": "2026-09-20",
+  "tag": 2
+}
+
+###
+
+GET http://localhost:5285/api/tasks
+Content-Type: application/json
+
+###
+
+DELETE http://localhost:5285/api/tasks/1
+
+###

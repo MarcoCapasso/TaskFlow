@@ -1,0 +1,15 @@
+# Backend .NET
+TaskManager.Api/bin/
+TaskManager.Api/obj/
+TaskManager.Api/appsettings.Development.json
+
+# Frontend React
+TaskManager.Client/node_modules/
+TaskManager.Client/dist/
+
+# Editor
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

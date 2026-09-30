@@ -1,0 +1,11 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=NOME_SERVER\\NOME_ISTANZA;Database=NOME_DATABASE;Trusted_Connection=True;TrustServerCertificate=True"
+  }
+}
