@@ -1,7 +1,6 @@
 TaskFlow — Task Manager Full Stack
 
 Applicazione full stack per la gestione di task personali, con autenticazione utente. Progetto di apprendimento costruito da zero, passo per passo, per imparare C#/.NET e React.
-Stack tecnologico
 
 Backend
 
