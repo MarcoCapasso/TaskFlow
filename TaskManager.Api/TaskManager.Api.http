@@ -15,12 +15,14 @@ Content-Type: application/json
 
 POST http://localhost:5285/api/tasks
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0MkBlc2VtcGlvLmNvbSIsImV4cCI6MTc5MDg1ODAyNSwiaXNzIjoiVGFza01hbmFnZXJBcGkiLCJhdWQiOiJUYXNrTWFuYWdlckNsaWVudCJ9.Y7K_PYH8j1eo0Bm5Q0VPAjm1K1AisKdi2VPnwCqnaLc
 
 {
-  "descrizione": "Comprare pane e uova",
+  "titolo": "Altro task autenticato",
+  "descrizione": "Test con JWT con due utenti",
   "stato": 0,
-  "data": "2026-09-20",
-  "tag": 1
+  "data": "2026-10-01",
+  "tag": 0
 }
 
 ###
@@ -38,11 +40,47 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:5285/api/tasks
+GET http://localhost:5285/api/tasks/
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0MkBlc2VtcGlvLmNvbSIsImV4cCI6MTc5MDg3NjI4NSwiaXNzIjoiVGFza01hbmFnZXJBcGkiLCJhdWQiOiJUYXNrTWFuYWdlckNsaWVudCJ9.4M2Sn0Uhk6WOuTSd4vFYG_o9-d3jX367LftgJH-TDpQ
 
 ###
 
-DELETE http://localhost:5285/api/tasks/1
+DELETE http://localhost:5285/api/tasks/26
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0QGVzZW1waW8uY29tIiwiZXhwIjoxNzkwODU3ODIzLCJpc3MiOiJUYXNrTWFuYWdlckFwaSIsImF1ZCI6IlRhc2tNYW5hZ2VyQ2xpZW50In0.kCA-5tukUlOg8gefSxU-YjA4Okuad9CTsSkB8JPkT4g
+
+###
+
+POST http://localhost:5285/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test3@esempio.com",
+  "password": "password123"
+}
+
+###
+
+//utente 1
+POST http://localhost:5285/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@esempio.com",
+  "password": "password123"
+}
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0QGVzZW1waW8uY29tIiwiZXhwIjoxNzkwODU3ODIzLCJpc3MiOiJUYXNrTWFuYWdlckFwaSIsImF1ZCI6IlRhc2tNYW5hZ2VyQ2xpZW50In0.kCA-5tukUlOg8gefSxU-YjA4Okuad9CTsSkB8JPkT4g
+
+###
+
+//utente 2
+POST http://localhost:5285/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test2@esempio.com",
+  "password": "password123"
+}
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0MkBlc2VtcGlvLmNvbSIsImV4cCI6MTc5MDg1ODAyNSwiaXNzIjoiVGFza01hbmFnZXJBcGkiLCJhdWQiOiJUYXNrTWFuYWdlckNsaWVudCJ9.Y7K_PYH8j1eo0Bm5Q0VPAjm1K1AisKdi2VPnwCqnaLc
 
 ###

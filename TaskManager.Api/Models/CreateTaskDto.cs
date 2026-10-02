@@ -5,8 +5,8 @@ namespace TaskManager.Api.Models;
 
 public class CreateTaskDto
 {
-    [Required]
-    [MinLength(5)]
+    [Required(ErrorMessage = "Il titolo è obbligatorio.")]
+    [MinLength(5, ErrorMessage = "Il titolo deve avere almeno 5 caratteri.")]
     public string? Titolo { get; set; }
     public string? Descrizione { get; set; }
     public Stato Stato { get; set; }

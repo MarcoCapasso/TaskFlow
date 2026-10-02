@@ -2,16 +2,19 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import useKeyboardShortcuts from "../../hooks/useKeyboardShortcuts";
 
-function TaskForm({ onTaskCreato, onAnnulla }) {
+function TaskForm({ onTaskCreato, onAnnulla, token }) {
   const [titolo, setTitolo] = useState("");
   const [descrizione, setDescrizione] = useState("");
   const [statoCorrente, setStatoCorrente] = useState(0);
   const [tagCorrente, setTagCorrente] = useState(0);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(new Date());
+  const [errori, setErrori] = useState({});
 
   function handleSubmit(e) {
     e.preventDefault();
+    setErrori({});
 
     const nuovoTask = {
       titolo: titolo,
@@ -23,9 +26,22 @@ function TaskForm({ onTaskCreato, onAnnulla }) {
 
     fetch("http://localhost:5285/api/tasks", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(nuovoTask),
-    }).then(() => onTaskCreato());
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const datiErrore = await response.json();
+          throw datiErrore;
+        }
+        onTaskCreato();
+      })
+      .catch((datiErrore) => {
+        setErrori(datiErrore.errors || {});
+      });
   }
 
   function formatDataPerBackend(dataObj) {
@@ -34,6 +50,10 @@ function TaskForm({ onTaskCreato, onAnnulla }) {
     const giorno = String(dataObj.getDate()).padStart(2, "0");
     return `${anno}-${mese}-${giorno}`;
   }
+
+  useKeyboardShortcuts({
+    Escape: onAnnulla,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,8 +84,13 @@ function TaskForm({ onTaskCreato, onAnnulla }) {
             value={titolo}
             onChange={(e) => setTitolo(e.target.value)}
             placeholder="Titolo della task"
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`bg-slate-900 border rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errori.Titolo ? "border-red-500" : "border-slate-700"
+            }`}
           />
+          {errori.Titolo && (
+            <p className="text-xs text-red-400">{errori.Titolo[0]}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">

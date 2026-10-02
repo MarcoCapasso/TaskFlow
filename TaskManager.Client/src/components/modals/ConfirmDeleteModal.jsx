@@ -1,4 +1,5 @@
 import { AlertTriangle, Trash2 } from "lucide-react";
+import useKeyboardShortcuts from "../../hooks/useKeyboardShortcuts";
 
 const statoLabels = {
   0: "Da fare",
@@ -13,6 +14,10 @@ const tagLabels = {
 };
 
 function ConfirmDeleteModal({ task, onConferma, onAnnulla }) {
+  useKeyboardShortcuts({
+    Escape: onAnnulla,
+    Enter: onConferma,
+  });
   return (
     <div className="flex flex-col gap-4">
       <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center">
@@ -24,6 +29,7 @@ function ConfirmDeleteModal({ task, onConferma, onAnnulla }) {
         <p className="text-sm text-slate-400">
           Sei sicuro di voler eliminare{" "}
           <span className="text-white font-medium">"{task.titolo}"</span>?
+          <br />
           Questa azione non può essere annullata.
         </p>
       </div>

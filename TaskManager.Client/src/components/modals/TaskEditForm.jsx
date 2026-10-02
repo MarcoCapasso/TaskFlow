@@ -2,16 +2,19 @@ import { useState } from "react";
 import { X, Trash2 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import useKeyboardShortcuts from "../../hooks/useKeyboardShortcuts";
 
-function TaskEditForm({ task, onTaskModificato, onAnnulla, onElimina }) {
+function TaskEditForm({ task, onTaskModificato, onAnnulla, onElimina, token }) {
   const [titolo, setTitolo] = useState(task.titolo);
   const [descrizione, setDescrizione] = useState(task.descrizione);
   const [statoCorrente, setStatoCorrente] = useState(task.statoCorrente);
   const [data, setData] = useState(new Date(task.data));
   const [tagCorrente, setTagCorrente] = useState(task.tagCorrente);
+  const [errori, setErrori] = useState({});
 
   function handleSubmit(e) {
     e.preventDefault();
+    setErrori({});
 
     const taskAggiornato = {
       titolo: titolo,
@@ -23,9 +26,22 @@ function TaskEditForm({ task, onTaskModificato, onAnnulla, onElimina }) {
 
     fetch(`http://localhost:5285/api/tasks/${task.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(taskAggiornato),
-    }).then(() => onTaskModificato());
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const datiErrore = await response.json();
+          throw datiErrore;
+        }
+        onTaskModificato();
+      })
+      .catch((datiErrore) => {
+        setErrori(datiErrore.errors || {});
+      });
   }
 
   function formatDataPerBackend(dataObj) {
@@ -34,6 +50,10 @@ function TaskEditForm({ task, onTaskModificato, onAnnulla, onElimina }) {
     const giorno = String(dataObj.getDate()).padStart(2, "0");
     return `${anno}-${mese}-${giorno}`;
   }
+
+  useKeyboardShortcuts({
+    Escape: onAnnulla,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,8 +84,13 @@ function TaskEditForm({ task, onTaskModificato, onAnnulla, onElimina }) {
             value={titolo}
             onChange={(e) => setTitolo(e.target.value)}
             placeholder="Titolo della task"
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`bg-slate-900 border rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errori.Titolo ? "border-red-500" : "border-slate-700"
+            }`}
           />
+          {errori.Titolo && (
+            <p className="text-xs text-red-400">{errori.Titolo[0]}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">

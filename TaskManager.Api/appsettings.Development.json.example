@@ -7,5 +7,10 @@
   },
   "ConnectionStrings": {
     "DefaultConnection": "Server=NOME_SERVER\\NOME_ISTANZA;Database=NOME_DATABASE;Trusted_Connection=True;TrustServerCertificate=True"
+  },
+  "Jwt": {
+    "Key": "Chiave",
+    "Issuer": "Backend",
+    "Audience": "Frontend"
   }
 }

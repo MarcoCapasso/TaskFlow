@@ -21,6 +21,8 @@ public class TaskItem
     public Stato StatoCorrente {get;  set; } 
     public DateTime Data {get; set; }
     public Tag TagCorrente {get; set; }
+    public int UserId {get; set; }
+    public User? User {get; set; }
 
     //Costruttore vuoto per EF Core
     public TaskItem()
