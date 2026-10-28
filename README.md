@@ -1,43 +1,9 @@
-# TaskFlow — Task Manager Full Stack
+# TaskFlow — Task manager full-stack con ASP.NET Core e React
 
-Applicazione full stack per la gestione di task personali, con autenticazione utente. Progetto di apprendimento costruito da zero, passo per passo, per imparare C#/.NET e React.
+TaskFlow è un'app per organizzare le attività quotidiane: crei una task, le assegni uno stato
+(da fare, in corso, completata), un tag (personale, lavoro, casa) e una scadenza, e la ritrovi
+raggruppata in Oggi, Questa settimana e Questo mese.
 
-## Stack tecnologico
-
-**Backend**
-- ASP.NET Core (C#)
-- Entity Framework Core
-- SQL Server
-- Autenticazione JWT + hashing password con BCrypt
-
-**Frontend**
-- React (Vite)
-- Tailwind CSS
-- react-datepicker, lucide-react
-
-## Funzionalità
-
-- Registrazione e login utente, con autenticazione JWT
-- CRUD completo dei task (creazione, lettura, modifica, eliminazione)
-- Ogni utente vede e gestisce solo i propri task
-- Filtri per stato e tag, raggruppamento per scadenza (oggi / questa settimana / questo mese)
-- Modali per creazione, modifica ed eliminazione (con conferma)
-- Notifiche toast, scorciatoie da tastiera (Esc / Enter)
-- Validazione dei form con messaggi d'errore per campo
-
-
-## Struttura del progetto
-
-```
-TaskManagerFullStack/
-├── TaskManager.Api/        # Backend ASP.NET Core
-│   ├── Controllers/
-│   ├── Models/
-│   ├── Repositories/
-│   ├── Data/
-│   └── Migrations/
-└── TaskManager.Client/     # Frontend React
-    └── src/
-        ├── components/
-        └── hooks/
-```
+Il backend è un'API REST in ASP.NET Core con autenticazione JWT: ogni utente si registra,
+accede e vede solo le proprie task. Il frontend è una single-page app in React, costruita con
+Vite e Tailwind CSS.
