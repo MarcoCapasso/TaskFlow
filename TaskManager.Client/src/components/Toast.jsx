@@ -1,14 +1,14 @@
-import { CheckCircle, XCircle } from "lucide-react";
+import { IconCompletato, IconErrore } from "./Icons";
 
 function Toast({ messaggio, tipo }) {
   return (
-    <div className="fixed bottom-6 right-6 z-60 flex items-center gap-3 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl shadow-lg">
+    <div className="fixed z-60 left-4 right-24 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:bottom-6 flex items-center gap-3 pl-3 pr-4 py-3 bg-raised border border-line rounded-xl shadow-card animate-pop-in">
       {tipo === "successo" ? (
-        <CheckCircle className="w-5 h-5 text-green-400" />
+        <IconCompletato className="w-5 h-5 text-accent" />
       ) : (
-        <XCircle className="w-5 h-5 text-red-400" />
+        <IconErrore className="w-5 h-5 text-danger" />
       )}
-      <p className="text-sm text-white">{messaggio}</p>
+      <p className="text-sm text-fg">{messaggio}</p>
     </div>
   );
 }

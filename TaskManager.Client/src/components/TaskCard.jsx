@@ -1,28 +1,17 @@
-import { Check, Pencil, Trash2 } from "lucide-react";
-
-const statoLabels = {
-  0: "Da fare",
-  1: "In corso",
-  2: "Completato",
-};
-
-const tagLabels = {
-  0: "Personale",
-  1: "Lavoro",
-  2: "Casa",
-};
-
-const statoColori = {
-  0: "bg-slate-500/20 text-slate-400",
-  1: "bg-blue-500/20 text-blue-400",
-  2: "bg-green-500/20 text-green-400",
-};
-
-const tagColori = {
-  0: "bg-purple-500/20 text-purple-400", // Personale
-  1: "bg-yellow-500/20 text-yellow-400", // Lavoro
-  2: "bg-pink-500/40 text-pink-100", // Casa
-};
+import {
+  IconCheck,
+  IconPencil,
+  IconTrash,
+  IconCalendar,
+} from "./Icons";
+import {
+  statoLabels,
+  tagLabels,
+  statoColori,
+  tagColori,
+  statoIcone,
+  tagIcone,
+} from "../costanti";
 
 function TaskCard({
   id,
@@ -35,59 +24,76 @@ function TaskCard({
   onModifica,
   onToggleCompletato,
 }) {
+  const completata = statoCorrente === 2;
+  const IconaStato = statoIcone[statoCorrente];
+  const IconaTag = tagIcone[tagCorrente];
+
   return (
     <div
       onClick={onModifica}
-      className={`flex items-center justify-between gap-4 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 hover:border-slate-600 hover:bg-slate-750 transition-colors cursor-pointer ${statoCorrente === 2 ? "opacity-50" : ""}`}
+      className={`group flex items-center justify-between gap-3 sm:gap-4 bg-surface border border-line rounded-2xl px-3.5 sm:px-4 py-3.5 hover:border-line-strong hover:shadow-card hover:-translate-y-px transition-all cursor-pointer ${
+        completata ? "opacity-60 hover:opacity-90" : ""
+      }`}
     >
-      {/* Sinistra: checkbox + titolo + badge */}
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+      {/* Sinistra: checkbox + titolo + meta */}
+      <div className="flex items-center gap-3.5 min-w-0 flex-1">
         {/*Checkbox */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleCompletato();
           }}
-          className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
-            statoCorrente === 2
-              ? "bg-green-500 border-green-500"
-              : "border-slate-600 hover:border-blue-500"
+          aria-label={completata ? "Riapri task" : "Completa task"}
+          className={`relative before:absolute before:-inset-2.5 w-[22px] h-[22px] rounded-lg border-[1.5px] flex items-center justify-center shrink-0 transition-all active:scale-90 ${
+            completata
+              ? "bg-accent border-accent text-on-accent"
+              : "border-line-strong text-transparent hover:border-accent hover:text-accent/50"
           }`}
         >
-          {statoCorrente === 2 && <Check className="w-3 h-3 text-white" />}
+          <IconCheck className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
 
-        {/* titolo + badge */}
-        <h3 className="text-lg font-semibold text-white">{titolo}</h3>
-        <div className="flex gap-2 flex-wrap">
-          <span
-            className={`text-xs px-2 py-1 rounded-full ${statoColori[statoCorrente]}`}
+        {/* titolo + meta */}
+        <div className="min-w-0 flex-1">
+          <h3
+            className={`font-semibold text-fg truncate ${
+              completata ? "line-through decoration-subtle" : ""
+            }`}
           >
-            {statoLabels[statoCorrente]}
-          </span>
-
-          <span
-            className={`text-xs px-2 py-1 rounded-full ${tagColori[tagCorrente]}`}
-          >
-            {tagLabels[tagCorrente]}
-          </span>
-          <span className="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-300">
-            {new Date(data).toLocaleDateString("it-IT")}
-          </span>
+            {titolo}
+          </h3>
+          {descrizione && (
+            <p className="text-sm text-muted truncate">{descrizione}</p>
+          )}
+          <div className="flex items-center gap-x-4 gap-y-1 flex-wrap mt-1.5 text-xs">
+            <span className={`flex items-center gap-1.5 ${statoColori[statoCorrente]}`}>
+              <IconaStato className="w-3.5 h-3.5" />
+              {statoLabels[statoCorrente]}
+            </span>
+            <span className={`flex items-center gap-1.5 ${tagColori[tagCorrente]}`}>
+              <IconaTag className="w-3.5 h-3.5" />
+              {tagLabels[tagCorrente]}
+            </span>
+            <span className="flex items-center gap-1.5 text-subtle">
+              <IconCalendar className="w-3.5 h-3.5" />
+              {new Date(data).toLocaleDateString("it-IT")}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Destra: bottoni azione */}
-      <div className="flex items-center gap-2">
+      {/* Destra: bottoni azione, visibili in hover (sempre su touch; su mobile si usa il tap sulla card) */}
+      <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 touch:opacity-100 transition-opacity">
         {/* Modifica / Elimina */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onModifica();
           }}
-          className="p-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600"
+          aria-label="Modifica task"
+          className="p-2 rounded-lg text-muted hover:text-fg hover:bg-surface-2 transition-colors"
         >
-          <Pencil className="w-4 h-4" />
+          <IconPencil className="w-4 h-4" />
         </button>
 
         <button
@@ -95,9 +101,10 @@ function TaskCard({
             e.stopPropagation();
             onElimina(id);
           }}
-          className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"
+          aria-label="Elimina task"
+          className="p-2 rounded-lg text-muted hover:text-danger hover:bg-danger-soft transition-colors"
         >
-          <Trash2 className="w-4 h-4" />
+          <IconTrash className="w-4 h-4" />
         </button>
       </div>
     </div>

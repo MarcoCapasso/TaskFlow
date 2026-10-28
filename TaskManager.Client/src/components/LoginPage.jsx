@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { IconLogo, IconErrore } from "./Icons";
+import { Campo } from "./modals/CampiForm";
+import { API_URL } from "../api";
 
 function LoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -14,7 +17,7 @@ function LoginPage({ onLoginSuccess }) {
 
     const endpoint = modalita === "login" ? "login" : "register";
 
-    fetch(`http://localhost:5285/api/auth/${endpoint}`, {
+    fetch(`${API_URL}/api/auth/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -41,80 +44,89 @@ function LoginPage({ onLoginSuccess }) {
         }
       });
   }
+
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-full max-w-sm flex flex-col gap-4"
-      >
-        <h1 className="text-2xl font-bold text-white text-center">TaskFlow</h1>
+    <div className="relative min-h-dvh bg-canvas flex items-center justify-center px-4 sm:px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-hidden">
+      {/* Alone d'accento dietro la card */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-accent/10 blur-3xl" />
 
-        {errore && <p className="text-red-400 text-sm text-center">{errore}</p>}
-        <div className="flex bg-slate-900 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setModalita("login")}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-              modalita === "login"
-                ? "bg-slate-700 text-white"
-                : "text-slate-400"
-            }`}
-          >
-            Accedi
-          </button>
-          <button
-            type="button"
-            onClick={() => setModalita("registrazione")}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-              modalita === "registrazione"
-                ? "bg-slate-700 text-white"
-                : "text-slate-400"
-            }`}
-          >
-            Crea Account
-          </button>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={`bg-slate-900 border rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errori.Email ? "border-red-500" : "border-slate-700"
-            }`}
-          />
-          {errori.Email && (
-            <p className="text-xs text-red-400">{errori.Email[0]}</p>
-          )}
+      <div className="relative w-full max-w-sm flex flex-col items-center gap-6 animate-pop-in">
+        <div className="flex flex-col items-center gap-3">
+          <IconLogo className="w-12 h-12 text-accent" />
+          <div className="text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-fg">TaskFlow</h1>
+            <p className="text-sm text-muted">
+              {modalita === "login"
+                ? "Bentornato, accedi per continuare"
+                : "Crea un account per iniziare"}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={`bg-slate-900 border rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errori.Password ? "border-red-500" : "border-slate-700"
-            }`}
-          />
-          {errori.Password && (
-            <p className="text-xs text-red-400">{errori.Password[0]}</p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-4 py-2"
+        <form
+          onSubmit={handleSubmit}
+          className="w-full bg-surface border border-line rounded-2xl shadow-card p-6 flex flex-col gap-4"
         >
-          {modalita === "login" ? "Accedi" : "Crea Account"}
-        </button>
-      </form>
+          <div className="flex bg-surface-2 rounded-xl p-1">
+            <button
+              type="button"
+              onClick={() => setModalita("login")}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                modalita === "login"
+                  ? "bg-raised text-fg shadow-card"
+                  : "text-muted hover:text-fg"
+              }`}
+            >
+              Accedi
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalita("registrazione")}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                modalita === "registrazione"
+                  ? "bg-raised text-fg shadow-card"
+                  : "text-muted hover:text-fg"
+              }`}
+            >
+              Crea Account
+            </button>
+          </div>
+
+          {errore && (
+            <p className="flex items-center gap-2 text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">
+              <IconErrore className="w-4 h-4 shrink-0" />
+              {errore}
+            </p>
+          )}
+
+          <Campo label="Email" errore={errori.Email}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="nome@esempio.it"
+              className={`tf-input ${errori.Email ? "border-danger!" : ""}`}
+            />
+          </Campo>
+
+          <Campo label="Password" errore={errori.Password}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className={`tf-input ${errori.Password ? "border-danger!" : ""}`}
+            />
+          </Campo>
+
+          <button
+            type="submit"
+            className="mt-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-xl px-4 py-2.5 transition-colors active:scale-[0.98]"
+          >
+            {modalita === "login" ? "Accedi" : "Crea Account"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

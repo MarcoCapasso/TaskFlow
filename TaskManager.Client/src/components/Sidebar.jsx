@@ -1,151 +1,137 @@
 import {
-  Circle,
-  Clock,
-  CheckCircle,
-  User,
-  Briefcase,
-  Home,
-} from "lucide-react";
+  statoLabels,
+  tagLabels,
+  statoColori,
+  tagColori,
+  statoIcone,
+  tagIcone,
+} from "../costanti";
 
-const statoLabels = {
-  0: "Da fare",
-  1: "In corso",
-  2: "Completato",
-};
+const stati = [0, 1, 2].map((v) => ({
+  valore: v,
+  label: statoLabels[v],
+  colore: statoColori[v],
+}));
 
-const tagLabels = {
-  0: "Personale",
-  1: "Lavoro",
-  2: "Casa",
-};
+const tags = [0, 1, 2].map((v) => ({
+  valore: v,
+  label: tagLabels[v],
+  colore: tagColori[v],
+}));
 
-function Sidebar({
-  taskList,
-  filtroStato,
-  setFiltroStato,
-  filtroTag,
-  setFiltroTag,
-}) {
+//Voce di filtro
+// click per attivare, secondo click per disattivare
+function VoceFiltro({ Icona, label, colore, conteggio, attivo, onClick }) {
   return (
-    <aside className="w-56 flex flex-col gap-6 p-6 border-r-3 border-slate-800/80">
-      <div>
-        <h2 className="text-xs font-semibold text-slate-400 uppercase mb-2 text-center">
+    <button
+      onClick={onClick}
+      className={`group w-full text-left px-3 py-2 rounded-xl flex items-center justify-between text-sm transition-colors ${
+        attivo
+          ? "bg-surface-2 text-fg ring-1 ring-line-strong"
+          : "text-muted hover:bg-surface-2 hover:text-fg"
+      }`}
+    >
+      <span className="flex items-center gap-2.5">
+        <Icona className={`w-[18px] h-[18px] ${colore}`} />
+        {label}
+      </span>
+      <span
+        className={`text-xs tabular-nums min-w-6 text-center rounded-md px-1.5 py-0.5 ${
+          attivo ? "bg-accent-soft text-accent" : "text-subtle"
+        }`}
+      >
+        {conteggio}
+      </span>
+    </button>
+  );
+}
+
+function ChipFiltro({ Icona, label, colore, conteggio, attivo, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 flex items-center gap-2 pl-3 pr-2.5 h-9 rounded-full border text-sm transition-colors ${
+        attivo
+          ? "bg-surface-2 border-line-strong text-fg"
+          : "bg-surface border-line text-muted"
+      }`}
+    >
+      <Icona className={`w-4 h-4 ${colore}`} />
+      {label}
+      <span
+        className={`text-xs tabular-nums rounded-md px-1.5 ${
+          attivo ? "bg-accent-soft text-accent" : "text-subtle"
+        }`}
+      >
+        {conteggio}
+      </span>
+    </button>
+  );
+}
+
+//Costruisce le voci di stato e tag con conteggi e handler, condivise da sidebar e chip
+function useVociFiltro({ taskList, filtroStato, setFiltroStato, filtroTag, setFiltroTag }) {
+  const vociStato = stati.map((s) => ({
+    key: `s${s.valore}`,
+    Icona: statoIcone[s.valore],
+    label: s.label,
+    colore: s.colore,
+    conteggio: taskList.filter((t) => t.statoCorrente === s.valore).length,
+    attivo: filtroStato === s.valore,
+    onClick: () => setFiltroStato(filtroStato === s.valore ? null : s.valore),
+  }));
+  const vociTag = tags.map((t) => ({
+    key: `t${t.valore}`,
+    Icona: tagIcone[t.valore],
+    label: t.label,
+    colore: t.colore,
+    conteggio: taskList.filter((task) => task.tagCorrente === t.valore).length,
+    attivo: filtroTag === t.valore,
+    onClick: () => setFiltroTag(filtroTag === t.valore ? null : t.valore),
+  }));
+  return { vociStato, vociTag };
+}
+
+function Sidebar(props) {
+  const { vociStato, vociTag } = useVociFiltro(props);
+
+  return (
+    <aside className="hidden md:flex w-60 shrink-0 flex-col gap-7 p-5 border-r border-line sticky top-(--tf-header) h-[calc(100dvh-var(--tf-header))] overflow-y-auto">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[11px] font-semibold text-subtle uppercase tracking-widest mb-2 px-3">
           Stato
         </h2>
-        {/*Da Fare*/}
-        <button
-          onClick={() => setFiltroStato(filtroStato === 0 ? null : 0)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroStato === 0
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <Circle className="w-4 h-4" />
-            Da fare
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.statoCorrente === 0).length}
-          </span>
-        </button>
-
-        {/*In Corso*/}
-        <button
-          onClick={() => setFiltroStato(filtroStato === 1 ? null : 1)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroStato === 1
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            In corso
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.statoCorrente === 1).length}
-          </span>
-        </button>
-
-        {/*Completato*/}
-        <button
-          onClick={() => setFiltroStato(filtroStato === 2 ? null : 2)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroStato === 2
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Completato
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.statoCorrente === 2).length}
-          </span>
-        </button>
+        {vociStato.map(({ key, ...voce }) => (
+          <VoceFiltro key={key} {...voce} />
+        ))}
       </div>
 
-      <div>
-        <h2 className="text-xs font-semibold text-slate-400 uppercase mb-2 text-center">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[11px] font-semibold text-subtle uppercase tracking-widest mb-2 px-3">
           Tag
         </h2>
-        {/*Personal*/}
-        <button
-          onClick={() => setFiltroTag(filtroTag === 0 ? null : 0)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroTag === 0
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Personale
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.tagCorrente === 0).length}
-          </span>
-        </button>
-
-        {/*Work*/}
-        <button
-          onClick={() => setFiltroTag(filtroTag === 1 ? null : 1)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroTag === 1
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <Briefcase className="w-4 h-4" />
-            Lavoro
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.tagCorrente === 1).length}
-          </span>
-        </button>
-
-        {/*Home*/}
-        <button
-          onClick={() => setFiltroTag(filtroTag === 2 ? null : 2)}
-          className={`w-full text-left px-3 py-2 rounded-lg flex justify-between transition-colors ${
-            filtroTag === 2
-              ? "bg-slate-800 border border-slate-700 text-white"
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="flex items-center gap-2">
-            <Home className="w-4 h-4" />
-            Casa
-          </span>
-          <span className="text-slate-500">
-            {taskList.filter((t) => t.tagCorrente === 2).length}
-          </span>
-        </button>
+        {vociTag.map(({ key, ...voce }) => (
+          <VoceFiltro key={key} {...voce} />
+        ))}
       </div>
     </aside>
+  );
+}
+
+//Filtri su mobile
+export function FiltriMobile(props) {
+  const { vociStato, vociTag } = useVociFiltro(props);
+
+  return (
+    <div className="md:hidden -mx-4 sm:-mx-6 mb-6 flex gap-2 overflow-x-auto scrollbar-none px-4 sm:px-6 py-1">
+      {vociStato.map(({ key, ...voce }) => (
+        <ChipFiltro key={key} {...voce} />
+      ))}
+      <span className="shrink-0 w-px bg-line my-1.5" />
+      {vociTag.map(({ key, ...voce }) => (
+        <ChipFiltro key={key} {...voce} />
+      ))}
+    </div>
   );
 }
 

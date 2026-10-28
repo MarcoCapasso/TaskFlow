@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { X } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import useKeyboardShortcuts from "../../hooks/useKeyboardShortcuts";
+import { statoLabels, tagLabels, classiBottone } from "../../costanti";
+import { Campo, Selezione, IntestazioneModale } from "./CampiForm";
+import { API_URL } from "../../api";
 
 function TaskForm({ onTaskCreato, onAnnulla, token }) {
   const [titolo, setTitolo] = useState("");
@@ -24,7 +26,7 @@ function TaskForm({ onTaskCreato, onAnnulla, token }) {
       tag: tagCorrente,
     };
 
-    fetch("http://localhost:5285/api/tasks", {
+    fetch(`${API_URL}/api/tasks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,115 +58,77 @@ function TaskForm({ onTaskCreato, onAnnulla, token }) {
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-700 pb-4">
-        <div>
-          <h2 className="text-xl font-bold text-white">Crea Task</h2>
-          <p className="text-sm text-slate-400">
-            Aggiungi i dettagli della task
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onAnnulla}
-          className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+      <IntestazioneModale
+        titolo="Crea Task"
+        sottotitolo="Aggiungi i dettagli della task"
+        onChiudi={onAnnulla}
+      />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Titolo
-          </label>
+        <Campo label="Titolo" errore={errori.Titolo}>
           <input
             type="text"
             value={titolo}
             onChange={(e) => setTitolo(e.target.value)}
             placeholder="Titolo della task"
-            className={`bg-slate-900 border rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errori.Titolo ? "border-red-500" : "border-slate-700"
-            }`}
+            autoFocus
+            className={`tf-input ${errori.Titolo ? "border-danger!" : ""}`}
           />
-          {errori.Titolo && (
-            <p className="text-xs text-red-400">{errori.Titolo[0]}</p>
-          )}
-        </div>
+        </Campo>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Descrizione
-          </label>
+        <Campo label="Descrizione">
           <input
             type="text"
             value={descrizione}
             onChange={(e) => setDescrizione(e.target.value)}
             placeholder="Descrizione della task"
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="tf-input"
           />
-        </div>
+        </Campo>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Stato
-          </label>
-          <select
-            value={statoCorrente}
-            onChange={(e) => setStatoCorrente(Number(e.target.value))}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={0}>Da fare</option>
-            <option value={1}>In corso</option>
-            <option value={2}>Completato</option>
-          </select>
-        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <Campo label="Stato">
+            <Selezione
+              value={statoCorrente}
+              onChange={setStatoCorrente}
+              opzioni={statoLabels}
+            />
+          </Campo>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Data
-          </label>
-          <DatePicker
-            selected={data}
-            onChange={(nuovaData) => setData(nuovaData)}
-            dateFormat="dd/MM/yyyy"
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <Campo label="Tag">
+            <Selezione
+              value={tagCorrente}
+              onChange={setTagCorrente}
+              opzioni={tagLabels}
+            />
+          </Campo>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-slate-400 uppercase">
-            Tag
-          </label>
-          <select
-            value={tagCorrente}
-            onChange={(e) => setTagCorrente(Number(e.target.value))}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={0}>Personale</option>
-            <option value={1}>Lavoro</option>
-            <option value={2}>Casa</option>
-          </select>
+          <div className="col-span-2 sm:col-span-1">
+            <Campo label="Data">
+              <DatePicker
+                selected={data}
+                onChange={(nuovaData) => setData(nuovaData)}
+                dateFormat="dd/MM/yyyy"
+                className="tf-input"
+              />
+            </Campo>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end border-t border-slate-700 pt-4">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onAnnulla}
-              className="bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg px-4 py-2"
-            >
-              Annulla
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-4 py-2"
-            >
-              Crea Task
-            </button>
-          </div>
+        <div className="flex items-center justify-end gap-2 border-t border-line pt-4 mt-2">
+          <button
+            type="button"
+            onClick={onAnnulla}
+            className={classiBottone.secondario}
+          >
+            Annulla
+          </button>
+          <button type="submit" className={classiBottone.primario}>
+            Crea Task
+          </button>
         </div>
       </form>
     </div>

@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import { Calendar } from "lucide-react";
 import TaskCard from "./components/TaskCard";
 import TaskForm from "./components/modals/TaskForm";
 import TaskEditForm from "./components/modals/TaskEditForm";
 import ConfirmDeleteModal from "./components/modals/ConfirmDeleteModal";
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
+import Sidebar, { FiltriMobile } from "./components/Sidebar";
 import LoginPage from "./components/LoginPage";
 import Toast from "./components/Toast";
-import "./App.css";
+import Modale from "./components/modals/Modale";
+import { IconCalendar, IconPlus } from "./components/Icons";
+import { API_URL } from "./api";
 
 const salutiMattina = [
   "Buongiorno",
@@ -63,6 +64,11 @@ function App() {
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
     ];
   const [toast, setToast] = useState(null);
+  //Estratto una sola volta: non cambia a ogni re-render
+  const [saluto] = useState(getSaluto);
+  const [tema, setTema] = useState(
+    document.documentElement.dataset.theme === "light" ? "light" : "dark",
+  );
 
   //Task che soddisfano entrambi i filtri attivi (stato e tag)
   const taskFiltrati = taskList.filter((t) => {
@@ -74,14 +80,29 @@ function App() {
 
   //FUNZIONI
 
-  //Ricarica automaticamente la pagina per mostrare le modifiche effettuate, come creazione, modifica, eliminazione delle task o logout/login
+  //Ricarica automaticamente la pagina per mostrare le modifiche effettuate
+  // creazione, modifica, eliminazione delle task o logout/login
   function ricaricaTasks() {
-    fetch("http://localhost:5285/api/tasks", {
+    fetch(`${API_URL}/api/tasks`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => response.json())
       .then((data) => setTaskList(data));
   }
+
+  //Tema chiaro/scuro
+  useEffect(() => {
+    if (tema === "light") document.documentElement.dataset.theme = "light";
+    else delete document.documentElement.dataset.theme;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", tema === "light" ? "#f4f5f3" : "#0b0c0f");
+    try {
+      localStorage.setItem("tema", tema);
+    } catch {
+      //storage non disponibile: il tema vale solo per la sessione
+    }
+  }, [tema]);
 
   useEffect(() => {
     if (token) {
@@ -91,7 +112,7 @@ function App() {
 
   //Elimina task
   function eliminaTask(id) {
-    fetch(`http://localhost:5285/api/tasks/${id}`, {
+    fetch(`${API_URL}/api/tasks/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     }).then(() => {
@@ -111,7 +132,7 @@ function App() {
       tag: task.tagCorrente,
     };
 
-    fetch(`http://localhost:5285/api/tasks/${task.id}`, {
+    fetch(`${API_URL}/api/tasks/${task.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -185,17 +206,19 @@ function App() {
   //RENDER
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex">
+    <div className="min-h-dvh bg-canvas text-fg flex">
       {/*Navbar*/}
       <Navbar
         onNuovaTask={() => setMostraForm(true)}
         onLogout={handleLogout}
         email={emailUtente}
+        tema={tema}
+        onToggleTema={() => setTema(tema === "light" ? "dark" : "light")}
       />
 
       {/* Contenuto principale */}
-      <div className="flex pt-16 flex-1">
-        {/*Sidebar*/}
+      <div className="flex pt-(--tf-header) flex-1 min-w-0">
+        {/*Sidebar (da md in su)*/}
         <Sidebar
           taskList={taskList}
           filtroStato={filtroStato}
@@ -204,99 +227,87 @@ function App() {
           setFiltroTag={setFiltroTag}
         />
 
-        <div className="flex-1 p-6">
+        <main className="flex-1 min-w-0 max-w-4xl px-4 sm:px-6 lg:px-10 pt-6 md:pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
           {/* Giorno e calendario*/}
-          <div className="mb-6 flex items-center gap-2 text-slate-400 text-sm">
-            <Calendar className="w-4 h-4" />
+          <div className="mb-2 flex items-center gap-2 text-muted text-sm">
+            <IconCalendar className="w-4 h-4 text-accent" />
             <span className="capitalize">{getDataFormattata()}</span>
           </div>
           {/* Saluto personalizzato */}
-          <h1 className="text-3xl font-bold text-white mb-6">{getSaluto()}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-fg mb-6 md:mb-10">
+            {saluto}
+          </h1>
+          {/* Filtri (sotto md) */}
+          <FiltriMobile
+            taskList={taskList}
+            filtroStato={filtroStato}
+            setFiltroStato={setFiltroStato}
+            filtroTag={filtroTag}
+            setFiltroTag={setFiltroTag}
+          />
           {/* Toast */}
           {toast && <Toast messaggio={toast.messaggio} tipo={toast.tipo} />}
 
           {/* Modale per creazione task*/}
           {mostraForm && (
-            <div
-              className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-              onClick={() => setMostraForm(false)}
-            >
-              <div
-                className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-xl w-full mx-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <TaskForm
-                  token={token}
-                  onTaskCreato={() => {
-                    ricaricaTasks();
-                    setMostraForm(false);
-                    mostraToast("Task creata con successo", "successo");
-                  }}
-                  onAnnulla={() => setMostraForm(false)}
-                />
-              </div>
-            </div>
+            <Modale onChiudi={() => setMostraForm(false)}>
+              <TaskForm
+                token={token}
+                onTaskCreato={() => {
+                  ricaricaTasks();
+                  setMostraForm(false);
+                  mostraToast("Task creata con successo", "successo");
+                }}
+                onAnnulla={() => setMostraForm(false)}
+              />
+            </Modale>
           )}
 
           {/* Modale per modifica task*/}
           {taskInModifica && (
-            <div
-              className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-              onClick={() => setTaskInModifica(null)}
-            >
-              <div
-                className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-xl w-full mx-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <TaskEditForm
-                  token={token}
-                  task={taskInModifica}
-                  onTaskModificato={() => {
-                    ricaricaTasks();
-                    setTaskInModifica(null);
-                    mostraToast("Task modificata con successo", "successo");
-                  }}
-                  onAnnulla={() => setTaskInModifica(null)}
-                  onElimina={() => {
-                    setTaskInModifica(null);
-                    setTaskDaEliminare(taskInModifica);
-                  }}
-                />
-              </div>
-            </div>
+            <Modale onChiudi={() => setTaskInModifica(null)}>
+              <TaskEditForm
+                token={token}
+                task={taskInModifica}
+                onTaskModificato={() => {
+                  ricaricaTasks();
+                  setTaskInModifica(null);
+                  mostraToast("Task modificata con successo", "successo");
+                }}
+                onAnnulla={() => setTaskInModifica(null)}
+                onElimina={() => {
+                  setTaskInModifica(null);
+                  setTaskDaEliminare(taskInModifica);
+                }}
+              />
+            </Modale>
           )}
 
           {/* Modale per eliminazione task */}
           {taskDaEliminare && (
-            <div
-              className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-              onClick={() => setTaskDaEliminare(null)}
-            >
-              <div
-                className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full mx-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ConfirmDeleteModal
-                  task={taskDaEliminare}
-                  onConferma={() => {
-                    eliminaTask(taskDaEliminare.id);
-                    setTaskDaEliminare(null);
-                  }}
-                  onAnnulla={() => setTaskDaEliminare(null)}
-                />
-              </div>
-            </div>
+            <Modale onChiudi={() => setTaskDaEliminare(null)} larghezza="max-w-md">
+              <ConfirmDeleteModal
+                task={taskDaEliminare}
+                onConferma={() => {
+                  eliminaTask(taskDaEliminare.id);
+                  setTaskDaEliminare(null);
+                }}
+                onAnnulla={() => setTaskDaEliminare(null)}
+              />
+            </Modale>
           )}
 
           {/* Lista dei task filtrati */}
           {Object.entries(gruppi).map(
             ([nomeGruppo, taskDelGruppo]) =>
               taskDelGruppo.length > 0 && (
-                <section key={nomeGruppo} className="mb-6">
-                  <h2 className="text-sm font-semibold text-slate-400 uppercase mb-3">
+                <section key={nomeGruppo} className="mb-8">
+                  <h2 className="flex items-center gap-3 text-[11px] font-semibold text-subtle uppercase tracking-widest mb-3">
                     {nomeGruppo}
+                    <span className="text-muted tabular-nums">{taskDelGruppo.length}</span>
+                    <span className="h-px flex-1 bg-line" />
                   </h2>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2.5">
                     {taskDelGruppo.map((task) => (
                       <TaskCard
                         key={task.id}
@@ -323,8 +334,17 @@ function App() {
                 </section>
               ),
           )}
-        </div>
+        </main>
       </div>
+
+      {/* FAB nuova task (sotto md) */}
+      <button
+        onClick={() => setMostraForm(true)}
+        aria-label="Nuova Task"
+        className="md:hidden fixed z-30 right-5 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] w-14 h-14 rounded-2xl bg-accent text-on-accent shadow-card flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <IconPlus className="w-6 h-6" />
+      </button>
     </div>
   );
 }
