@@ -1,6 +1,6 @@
-![TaskFlow](branding/taskflow-card.png)
-
 # TaskFlow — Task manager full-stack con ASP.NET Core e React
+
+![TaskFlow](branding/taskflow-card.png)
 
 TaskFlow è un'app per organizzare le attività quotidiane: crei una task, le assegni uno stato
 (da fare, in corso, completata), un tag (personale, lavoro, casa) e una scadenza, e la ritrovi
