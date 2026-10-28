@@ -1,4 +1,4 @@
-# TaskFlow — Task manager full-stack con ASP.NET Core e React
+# TaskFlow
 
 ![TaskFlow](branding/taskflow-card.png)
 
